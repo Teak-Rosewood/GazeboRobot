@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro = "https://www.ros.org/wiki/xacro">
+
+<xacro:property name="ultrasonic_sensor_size" value="0.025"/>
+
+  <!-- Ultrasonic Sensor Right -->
+
+  <!-- Linking right sensor-->
+
+    <link name="ultrasonic_right_link">
+        <collision>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <geometry>
+            <box size="${ultrasonic_sensor_size} ${ultrasonic_sensor_size} ${ultrasonic_sensor_size}"/>
+          </geometry>
+        </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${ultrasonic_sensor_size} ${ultrasonic_sensor_size} ${ultrasonic_sensor_size}"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+
+    <inertial>
+      <mass value="0.5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="${(ultrasonic_sensor_size * ultrasonic_sensor_size) / 6}" ixy="0" ixz="0" iyy="${(ultrasonic_sensor_size * ultrasonic_sensor_size) / 6}" iyz="0" izz="${(ultrasonic_sensor_size * ultrasonic_sensor_size) / 6}" />
+    </inertial>
+  </link>
+
+  <!-- Joint -->
+
+  <joint name="ultrasonic_right_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0 ${body_w / 2} 0.06" rpy="0 0 ${pi/2}"/>
+    <parent link="link_chassis"/>
+    <child link="ultrasonic_right_link"/>
+  </joint>
+
+  <!-- Gazebo tags -->
+
+  <gazebo reference = "ultrasonic_right_link">
+    <sensor type="ray" name="ultrasonic_right">
+      <update_rate>5</update_rate>
+      <always_on> true </always_on>
+      <visualize> true </visualize>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>5</samples>
+            <resolution>1.0</resolution>
+            <min_angle>-${pi/4}</min_angle>
+            <max_angle>${pi/4}</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>5</samples>
+            <resolution>1.0</resolution>
+            <min_angle>-${pi/4}</min_angle>
+            <max_angle>${pi/4}</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>0.1</min>
+          <max>5.0</max>
+          <resolution>0.01</resolution>
+        </range>
+      </ray>
+
+      <plugin filename="libhector_gazebo_ros_sonar.so" name="ultrasonic_sensor_right">
+
+        <gaussianNoise> 0.005 </gaussianNoise>
+        <topicName> /sonar_data_right</topicName>
+        <frameId> ultrasonic_right_link </frameId>
+
+      </plugin>
+
+    </sensor>
+
+  </gazebo>
+
+  <!-- Ultrasonic Sensor Left -->
+
+  <!-- Linking left sensor-->
+
+  <link name="ultrasonic_left_link">
+
+        <collision>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <geometry>
+            <box size="${ultrasonic_sensor_size} ${ultrasonic_sensor_size} ${ultrasonic_sensor_size}"/>
+          </geometry>
+        </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${ultrasonic_sensor_size} ${ultrasonic_sensor_size} ${ultrasonic_sensor_size}"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+
+    <inertial>
+      <mass value="0.5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="${(ultrasonic_sensor_size * ultrasonic_sensor_size) / 6}" ixy="0" ixz="0" iyy="${(ultrasonic_sensor_size * ultrasonic_sensor_size) / 6}" iyz="0" izz="${(ultrasonic_sensor_size * ultrasonic_sensor_size) / 6}" />
+    </inertial>
+  </link>
+
+  <!-- Joint -->
+
+  <joint name="ultrasonic_left_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0 -${body_w / 2} 0.06" rpy="0 0 -${pi/2}"/>
+    <parent link="link_chassis"/>
+    <child link="ultrasonic_left_link"/>
+  </joint>
+
+  <!-- Gazebo tags -->
+
+  <gazebo reference = "ultrasonic_left_link">
+    <sensor type="ray" name="ultrasonic_left">
+      <update_rate>5</update_rate>
+      <pose>0 0 0 0 0 0</pose>
+      <always_on> true </always_on>
+      <visualize> true </visualize>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>5</samples>
+            <resolution>1.0</resolution>
+            <min_angle>-${pi/4}</min_angle>
+            <max_angle>${pi/4}</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>5</samples>
+            <resolution>1</resolution>
+            <min_angle>-${pi/4}</min_angle>
+            <max_angle>${pi/4}</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>0.1</min>
+          <max>5.0</max>
+          <resolution>0.01</resolution>
+        </range>
+      </ray>
+
+      <plugin filename="libhector_gazebo_ros_sonar.so" name="ultrasonic_sensor_left">
+
+        <topicName> /sonar_data_left </topicName>
+        <frameId> ultrasonic_left_link </frameId>
+
+      </plugin>
+
+    </sensor>
+
+  </gazebo>
+
+</robot>

@@ -1,0 +1,73 @@
+<?xml version="1.0" ?>
+
+<robot name="robot_1" xmlns:xacro="https://www.ros.org/wiki/xacro" >
+
+    <!-- Making Lazer Link-->
+
+    <link name="lazer_link">
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.025 0.025 0.025"/>
+            </geometry>
+        </collision>
+
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.025 0.025 0.025"/>
+            </geometry>
+            <material name="red"/>
+        </visual>
+
+        <inertial>
+            <mass value="1e-5" />
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+        </inertial>
+    </link>
+
+    <!-- Joint for lazer_link and link_chassis -->
+
+    <joint name="lazer_link" type="fixed">
+        <axis xyz="0 1 0" />
+        <origin xyz="${(body_l / 2)} 0.1 0.06" rpy="0 0 0"/>
+        <parent link="link_chassis"/>
+        <child link="lazer_link"/>
+    </joint>
+
+    <!-- Gazebo information -->
+
+    <gazebo reference="lazer_link">
+    <material>Gazebo/Red</material>
+    <sensor type="gpu_ray" name="head_hokuyo_sensor">
+      
+      <visualize>true</visualize>
+      <update_rate>40</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>720</samples>
+            <resolution>1</resolution>
+            <min_angle>-${pi/4}</min_angle>
+            <max_angle>${pi/4}</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.10</min>
+          <max>30.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_gpu_laser.so">
+        <topicName>/robot_1/laser/scan</topicName>
+        <frameName>lazer_link</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+</robot>

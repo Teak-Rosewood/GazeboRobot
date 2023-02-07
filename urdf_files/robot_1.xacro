@@ -1,0 +1,238 @@
+<?xml version="1.0" ?>
+
+<robot name="robot_1" xmlns:xacro="https://www.ros.org/wiki/xacro" >
+
+  <!-- Defining global properties of robot -->
+
+  <xacro:property name="wheel_r" value="0.11"/>
+  <xacro:property name="wheel_w" value="0.015"/>
+  <xacro:property name="body_h" value="0.05"/>
+  <xacro:property name="body_w" value="0.35"/>
+  <xacro:property name="body_l" value="0.5"/>
+
+  <!-- Including xacro files for plugins, macros, and materials -->
+  
+  <xacro:include filename = "$(find robot_1_description)/urdf/materials.xacro"/>
+  <xacro:include filename = "$(find robot_1_description)/urdf/macros.xacro"/>
+  <xacro:include filename = "$(find robot_1_description)/urdf/plugins/camera.xacro"/>
+  <xacro:include filename = "$(find robot_1_description)/urdf/plugins/skid_steer_drive.xacro"/>
+  <xacro:include filename = "$(find robot_1_description)/urdf/plugins/imu.xacro"/>
+  <xacro:include filename = "$(find robot_1_description)/urdf/plugins/lazer_sensor.xacro"/>
+  <xacro:include filename = "$(find robot_1_description)/urdf/plugins/kinect.xacro"/>
+  <xacro:include filename = "$(find robot_1_description)/urdf/plugins/gps.xacro"/>
+  <xacro:include filename = "$(find robot_1_description)/urdf/plugins/ultrasonic_sensor.xacro"/>
+
+  <!-- Making the body of the 4 wheeled robot -->
+
+  <gazebo reference="link_chassis">
+    <material>Gazebo/Black</material>
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+  </gazebo>
+
+  <link name="link_chassis">
+
+    <visual> 
+      <geometry>
+        <box size="${body_l} ${body_w} ${body_h}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="${body_l} ${body_w} ${body_h}"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="1"/>
+      <inertia
+        ixy="0" 
+        ixz="0" 
+        iyy="${(1/12) * (body_l * body_l + body_h * body_h)}" 
+        ixx="${(1/12) * ((body_w * body_w) + (body_h * body_h))}" 
+        iyz="0" 
+        izz="${(1/12) * (body_w * body_w + body_l * body_l)}"/>
+    </inertial>
+
+  </link>
+  
+  <!-- Linking and joining Front Right wheel -->
+
+  <xacro:wheel_linking name = "FR_wheel" radius = "${wheel_r}" width = "${wheel_w}" mass = "0.3"/>
+
+  <joint name = "FR_joint" type = "continuous">
+    <parent link = "link_chassis"/>
+    <child link = "FR_wheel"/>
+    <axis xyz = "0 0 1"/>
+    <origin xyz="${body_l/2 - 0.03} -${body_w/2 + wheel_w/2} 0" rpy="${pi/2} 0 0" />
+    <dynamic friction="0.1"/>
+  </joint>
+
+  <!-- Linking and joining Front Left wheel -->
+
+  <xacro:wheel_linking name = "FL_wheel" radius = "${wheel_r}" width = "${wheel_w}" mass = "0.3"/>
+
+  <joint name = "FL_joint" type = "continuous">
+    <parent link = "link_chassis"/>
+    <child link = "FL_wheel"/>
+    <axis xyz = "0 0 1"/>
+    <origin xyz="${body_l/2 - 0.03} ${body_w/2 + wheel_w/2} 0" rpy="${pi/2} 0 0" />
+    <dynamic friction="0.1"/>
+  </joint>
+
+  <!-- Linking and joining Back Right wheel -->
+
+  <xacro:wheel_linking name = "BR_wheel" radius = "${wheel_r}" width = "${wheel_w}" mass = "0.3"/>
+
+  <joint name = "BR_joint" type = "continuous">
+    <parent link = "link_chassis"/>
+    <child link = "BR_wheel"/>
+    <axis xyz = "0 0 1"/>
+    <origin xyz="-${body_l/2 - 0.03} -${body_w/2 + wheel_w/2} 0" rpy="${pi/2} 0 0" />
+    <dynamic friction="0.1"/>
+  </joint>
+
+  <!-- Linking and joining Back Left wheel -->
+
+  <xacro:wheel_linking name = "BL_wheel" radius = "${wheel_r}" width = "${wheel_w}" mass = "0.3"/>
+
+  <joint name = "BL_joint" type = "continuous">
+    <parent link = "link_chassis"/>
+    <child link = "BL_wheel"/>
+    <axis xyz = "0 0 1"/>
+    <origin xyz="-${body_l/2 - 0.03} ${body_w/2 + wheel_w/2} 0" rpy="${pi/2} 0 0" />
+    <dynamic friction="0.1"/>
+  </joint>
+
+  <!-- linking and joining for elevating front sensors -->
+  
+  <gazebo reference="front_sensor_base">
+    <material>Gazebo/Black</material>
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+  </gazebo>
+
+  <link name="front_sensor_base">
+
+    <visual> 
+      <geometry>
+        <box size="${body_l / 5} ${body_w - 0.003} ${body_h}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="${body_l / 5} ${body_w - 0.003} ${body_h}"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="1"/>
+      <inertia
+        ixy="0" 
+        ixz="0" 
+        iyy="${(1/12) * (body_l / 5 * body_l / 5 + (body_h)* (body_h))}" 
+        ixx="${(1/12) * (((body_w - 0.003) * (body_w - 0.003)) + ((body_h) * (body_h)))}" 
+        iyz="0" 
+        izz="${(1/12) * ((body_w - 0.003) * (body_w - 0.003) + body_l / 5 * body_l / 5)}"/>
+    </inertial>
+
+  </link> 
+
+  <joint name = "front_sensor_base_joint" type = "fixed">
+    <parent link = "link_chassis"/>
+    <child link = "front_sensor_base"/>
+    <axis xyz = "0 1 0"/>
+    <origin xyz="${body_l/2 - (body_l / 10) - 0.0125} 0 ${body_h / 2 + ((body_h) / 2)}" rpy="0 0 0" />
+  </joint>
+
+  <!-- linking and joining for elevating right sensors -->
+
+  <gazebo reference="right_sensor_base">
+    <material>Gazebo/Black</material>
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+  </gazebo>
+
+  <link name="right_sensor_base">
+
+    <visual> 
+      <geometry>
+        <box size="${body_l / 5} ${body_l / 5} ${body_l / 5}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="${body_l / 5} ${body_l / 5} ${body_l / 5}"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="1"/>
+      <inertia
+        ixy="0" 
+        ixz="0" 
+        iyy="${(1/12) * ((body_l / 5 * body_l / 5) + (body_l / 5 * body_l / 5))}" 
+        ixx="${(1/12) * ((body_l / 5 * body_l / 5) + (body_l / 5 * body_l / 5))}" 
+        iyz="0" 
+        izz="${(1/12) * ((body_l / 5 * body_l / 5) + (body_l / 5 * body_l / 5))}"/>
+    </inertial>
+
+  </link> 
+
+  <joint name = "right_sensor_base_joint" type = "fixed">
+    <parent link = "link_chassis"/>
+    <child link = "right_sensor_base"/>
+    <axis xyz = "0 1 0"/>
+    <origin xyz="0 ${body_w / 2 - body_l / 10} ${body_h / 2 + ((body_h) / 2)}" rpy="0 0 0" />
+  </joint>
+
+  <!-- linking and joining for elevating left sensors -->
+
+  <gazebo reference="left_sensor_base">
+    <material>Gazebo/Black</material>
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+  </gazebo>
+
+  <link name="left_sensor_base">
+
+    <visual> 
+      <geometry>
+        <box size="${body_l / 5} ${body_l / 5} ${body_l / 5}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="${body_l / 5} ${body_l / 5} ${body_l / 5}"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="1"/>
+      <inertia
+        ixy="0" 
+        ixz="0" 
+        iyy="${(1/12) * ((body_l / 5 * body_l / 5) + (body_l / 5 * body_l / 5))}" 
+        ixx="${(1/12) * ((body_l / 5 * body_l / 5) + (body_l / 5 * body_l / 5))}" 
+        iyz="0" 
+        izz="${(1/12) * ((body_l / 5 * body_l / 5) + (body_l / 5 * body_l / 5))}"/>
+    </inertial>
+
+  </link> 
+
+  <joint name = "left_sensor_base_joint" type = "fixed">
+    <parent link = "link_chassis"/>
+    <child link = "left_sensor_base"/>
+    <axis xyz = "0 1 0"/>
+    <origin xyz="0 -${body_w / 2 - body_l / 10} ${body_h / 2 + ((body_h) / 2)}" rpy="0 0 0" />
+  </joint>
+
+</robot>
